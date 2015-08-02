@@ -25,8 +25,8 @@
 		},
 		{
 			"ImportPath": "github.com/ethereum/ethash",
-			"Comment": "v23.1-231-g291dc2c",
-			"Rev": "291dc2c1e43b7a903572328d2acc0b840dc4e7a7"
+			"Comment": "v23.1-232-g3ba537c",
+			"Rev": "3ba537c0b8175cb985097c0697b3606c2e0ad6fe"
 		},
 		{
 			"ImportPath": "github.com/howeyc/fsnotify",
@@ -64,8 +64,8 @@
 		{
 			"ImportPath": "github.com/rcrowley/go-metrics",
 			"Rev": "a5cfc242a56ba7fa70b785f678d6214837bf93b9"
-    },
-    {
+		},
+		{
 			"ImportPath": "github.com/rakyll/globalconf",
 			"Rev": "415abc325023f1a00cd2d9fa512e0e71745791a2"
 		},
