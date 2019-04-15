@@ -25,15 +25,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/consensus/ethash"
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/ethdb"
-	"github.com/ethereum/go-ethereum/event"
-	"github.com/ethereum/go-ethereum/params"
-	"github.com/ethereum/go-ethereum/trie"
+	"github.com/unification-com/mainchain/common"
+	"github.com/unification-com/mainchain/consensus/ethash"
+	"github.com/unification-com/mainchain/core"
+	"github.com/unification-com/mainchain/core/types"
+	"github.com/unification-com/mainchain/crypto"
+	"github.com/unification-com/mainchain/ethdb"
+	"github.com/unification-com/mainchain/event"
+	"github.com/unification-com/mainchain/params"
+	"github.com/unification-com/mainchain/trie"
 )
 
 var (

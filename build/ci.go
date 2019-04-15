@@ -47,7 +47,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/ethereum/go-ethereum/internal/build"
+	"github.com/unification-com/mainchain/internal/build"
 )
 
 var (

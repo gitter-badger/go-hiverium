@@ -20,7 +20,7 @@ import (
 	"bytes"
 	"container/heap"
 	"errors"
-	"github.com/ethereum/go-ethereum/common"
+	"github.com/unification-com/mainchain/common"
 )
 
 // Iterator is a key-value trie iterator that traverses a Trie.

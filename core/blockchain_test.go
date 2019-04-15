@@ -24,14 +24,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/consensus/ethash"
-	"github.com/ethereum/go-ethereum/core/state"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/ethdb"
-	"github.com/ethereum/go-ethereum/params"
+	"github.com/unification-com/mainchain/common"
+	"github.com/unification-com/mainchain/consensus/ethash"
+	"github.com/unification-com/mainchain/core/state"
+	"github.com/unification-com/mainchain/core/types"
+	"github.com/unification-com/mainchain/core/vm"
+	"github.com/unification-com/mainchain/crypto"
+	"github.com/unification-com/mainchain/ethdb"
+	"github.com/unification-com/mainchain/params"
 )
 
 // Test fork of length N starting from block i
@@ -1179,7 +1179,7 @@ func TestEIP161AccountRemoval(t *testing.T) {
 // tests that under weird reorg conditions the blockchain and its internal header-
 // chain return the same latest block/header.
 //
-// https://github.com/ethereum/go-ethereum/pull/15941
+// https://github.com/unification-com/mainchain/pull/15941
 func TestBlockchainHeaderchainReorgConsistency(t *testing.T) {
 	// Generate a canonical chain to act as the main dataset
 	engine := ethash.NewFaker()

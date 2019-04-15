@@ -19,7 +19,7 @@ package event_test
 import (
 	"fmt"
 
-	"github.com/ethereum/go-ethereum/event"
+	"github.com/unification-com/mainchain/event"
 )
 
 func ExampleFeed_acknowledgedEvents() {

@@ -33,10 +33,10 @@ import (
 	"unsafe"
 
 	mmap "github.com/edsrzf/mmap-go"
-	"github.com/ethereum/go-ethereum/consensus"
-	"github.com/ethereum/go-ethereum/log"
-	"github.com/ethereum/go-ethereum/metrics"
-	"github.com/ethereum/go-ethereum/rpc"
+	"github.com/unification-com/mainchain/consensus"
+	"github.com/unification-com/mainchain/log"
+	"github.com/unification-com/mainchain/metrics"
+	"github.com/unification-com/mainchain/rpc"
 	"github.com/hashicorp/golang-lru/simplelru"
 )
 

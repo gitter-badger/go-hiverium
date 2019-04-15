@@ -30,10 +30,10 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/log"
-	"github.com/ethereum/go-ethereum/metrics"
-	"github.com/ethereum/go-ethereum/swarm/storage"
+	"github.com/unification-com/mainchain/common"
+	"github.com/unification-com/mainchain/log"
+	"github.com/unification-com/mainchain/metrics"
+	"github.com/unification-com/mainchain/swarm/storage"
 )
 
 var hashMatcher = regexp.MustCompile("^[0-9A-Fa-f]{64}")

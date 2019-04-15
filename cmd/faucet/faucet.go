@@ -41,23 +41,23 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ethereum/go-ethereum/accounts"
-	"github.com/ethereum/go-ethereum/accounts/keystore"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/eth"
-	"github.com/ethereum/go-ethereum/eth/downloader"
-	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/ethereum/go-ethereum/ethstats"
-	"github.com/ethereum/go-ethereum/les"
-	"github.com/ethereum/go-ethereum/log"
-	"github.com/ethereum/go-ethereum/node"
-	"github.com/ethereum/go-ethereum/p2p"
-	"github.com/ethereum/go-ethereum/p2p/discover"
-	"github.com/ethereum/go-ethereum/p2p/discv5"
-	"github.com/ethereum/go-ethereum/p2p/nat"
-	"github.com/ethereum/go-ethereum/params"
+	"github.com/unification-com/mainchain/accounts"
+	"github.com/unification-com/mainchain/accounts/keystore"
+	"github.com/unification-com/mainchain/common"
+	"github.com/unification-com/mainchain/core"
+	"github.com/unification-com/mainchain/core/types"
+	"github.com/unification-com/mainchain/eth"
+	"github.com/unification-com/mainchain/eth/downloader"
+	"github.com/unification-com/mainchain/ethclient"
+	"github.com/unification-com/mainchain/ethstats"
+	"github.com/unification-com/mainchain/les"
+	"github.com/unification-com/mainchain/log"
+	"github.com/unification-com/mainchain/node"
+	"github.com/unification-com/mainchain/p2p"
+	"github.com/unification-com/mainchain/p2p/discover"
+	"github.com/unification-com/mainchain/p2p/discv5"
+	"github.com/unification-com/mainchain/p2p/nat"
+	"github.com/unification-com/mainchain/params"
 	"golang.org/x/net/websocket"
 )
 
@@ -450,7 +450,7 @@ func (f *faucet) apiHandler(conn *websocket.Conn) {
 		case *noauthFlag:
 			username, avatar, address, err = authNoAuth(msg.URL)
 		default:
-			err = errors.New("Something funky happened, please open an issue at https://github.com/ethereum/go-ethereum/issues")
+			err = errors.New("Something funky happened, please open an issue at https://github.com/unification-com/mainchain/issues")
 		}
 		if err != nil {
 			if err = sendError(conn, err); err != nil {

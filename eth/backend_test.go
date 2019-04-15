@@ -1,7 +1,7 @@
 package eth
 
 import (
-	"github.com/ethereum/go-ethereum/params"
+	"github.com/unification-com/mainchain/params"
 	"math/big"
 	"testing"
 )

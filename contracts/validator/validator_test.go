@@ -23,13 +23,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
-	"github.com/ethereum/go-ethereum/accounts/abi/bind/backends"
-	"github.com/ethereum/go-ethereum/common"
-	contractValidator "github.com/ethereum/go-ethereum/contracts/validator/contract"
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/log"
+	"github.com/unification-com/mainchain/accounts/abi/bind"
+	"github.com/unification-com/mainchain/accounts/abi/bind/backends"
+	"github.com/unification-com/mainchain/common"
+	contractValidator "github.com/unification-com/mainchain/contracts/validator/contract"
+	"github.com/unification-com/mainchain/core"
+	"github.com/unification-com/mainchain/crypto"
+	"github.com/unification-com/mainchain/log"
 )
 
 var (

@@ -16,9 +16,9 @@
 package randomize
 
 import (
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/contracts/randomize/contract"
+	"github.com/unification-com/mainchain/accounts/abi/bind"
+	"github.com/unification-com/mainchain/common"
+	"github.com/unification-com/mainchain/contracts/randomize/contract"
 )
 
 type Randomize struct {

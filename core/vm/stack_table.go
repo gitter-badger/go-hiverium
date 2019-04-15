@@ -19,7 +19,7 @@ package vm
 import (
 	"fmt"
 
-	"github.com/ethereum/go-ethereum/params"
+	"github.com/unification-com/mainchain/params"
 )
 
 func makeStackFunc(pop, push int) stackValidationFunc {

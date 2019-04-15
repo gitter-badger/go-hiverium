@@ -24,22 +24,22 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/log"
-	"github.com/ethereum/go-ethereum/params"
+	"github.com/unification-com/mainchain/common"
+	"github.com/unification-com/mainchain/core"
+	"github.com/unification-com/mainchain/log"
+	"github.com/unification-com/mainchain/params"
 
 	"context"
 	"math/big"
 
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
-	"github.com/ethereum/go-ethereum/accounts/abi/bind/backends"
-	blockSignerContract "github.com/ethereum/go-ethereum/contracts/blocksigner"
-	multiSignWalletContract "github.com/ethereum/go-ethereum/contracts/multisigwallet"
-	randomizeContract "github.com/ethereum/go-ethereum/contracts/randomize"
-	validatorContract "github.com/ethereum/go-ethereum/contracts/validator"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/unification-com/mainchain/accounts/abi/bind"
+	"github.com/unification-com/mainchain/accounts/abi/bind/backends"
+	blockSignerContract "github.com/unification-com/mainchain/contracts/blocksigner"
+	multiSignWalletContract "github.com/unification-com/mainchain/contracts/multisigwallet"
+	randomizeContract "github.com/unification-com/mainchain/contracts/randomize"
+	validatorContract "github.com/unification-com/mainchain/contracts/validator"
+	"github.com/unification-com/mainchain/crypto"
+	"github.com/unification-com/mainchain/rlp"
 )
 
 // makeGenesis creates a new genesis struct based on some user input.

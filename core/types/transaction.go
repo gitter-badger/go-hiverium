@@ -24,10 +24,10 @@ import (
 	"math/big"
 	"sync/atomic"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/unification-com/mainchain/common"
+	"github.com/unification-com/mainchain/common/hexutil"
+	"github.com/unification-com/mainchain/crypto"
+	"github.com/unification-com/mainchain/rlp"
 )
 
 //go:generate gencodec -type txdata -field-override txdataMarshaling -out gen_tx_json.go

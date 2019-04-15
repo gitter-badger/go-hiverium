@@ -16,9 +16,9 @@
 package blocksigner
 
 import (
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/contracts/blocksigner/contract"
+	"github.com/unification-com/mainchain/accounts/abi/bind"
+	"github.com/unification-com/mainchain/common"
+	"github.com/unification-com/mainchain/contracts/blocksigner/contract"
 	"math/big"
 )
 

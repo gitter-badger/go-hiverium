@@ -1,6 +1,6 @@
 sudo: required
 language: go
-go_import_path: github.com/ethereum/go-ethereum
+go_import_path: github.com/unification-com/mainchain
 
 jobs:
   include:

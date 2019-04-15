@@ -6,12 +6,12 @@ package contracts
 //	"math/big"
 //	"time"
 //
-//	"github.com/ethereum/go-ethereum/common"
-//	"github.com/ethereum/go-ethereum/core"
-//	"github.com/ethereum/go-ethereum/core/state"
-//	"github.com/ethereum/go-ethereum/crypto"
-//	"github.com/ethereum/go-ethereum/ethdb"
-//	"github.com/ethereum/go-ethereum/core/types"
+//	"github.com/unification-com/mainchain/common"
+//	"github.com/unification-com/mainchain/core"
+//	"github.com/unification-com/mainchain/core/state"
+//	"github.com/unification-com/mainchain/crypto"
+//	"github.com/unification-com/mainchain/ethdb"
+//	"github.com/unification-com/mainchain/core/types"
 //)
 //
 //var (
