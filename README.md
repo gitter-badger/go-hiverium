@@ -1,168 +1,122 @@
-# Tomochain
+![Unification](https://raw.githubusercontent.com/unification-com/mainchain/master/unification_logoblack.png "Unification")
 
-[![Build Status](https://travis-ci.org/tomochain/tomochain.svg?branch=master)](https://travis-ci.org/tomochain/tomochain)
-[![Join the chat at https://gitter.im/tomochain/tomochain](https://badges.gitter.im/tomochain/tomochain.svg)](https://gitter.im/tomochain/tomochain?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+## UND Mainchain
 
-## About Tomochain
+Official golang implementation of the Unification Mainchain protocol.
 
-TomoChain is an innovative solution to the scalability problem with the Ethereum blockchain.
-Our mission is to be a leading force in building the Internet of Value, and its infrastructure.
-We are working to create an alternative, scalable financial system which is more secure, transparent, efficient, inclusive, and equitable for everyone.
+[![API Reference](
+https://camo.githubusercontent.com/915b7be44ada53c290eb157634330494ebe3e30a/68747470733a2f2f676f646f632e6f72672f6769746875622e636f6d2f676f6c616e672f6764646f3f7374617475732e737667
+)](https://godoc.org/github.com/unification-com/mainchain)
+[![Go Report Card](https://goreportcard.com/badge/github.com/unification-com/mainchain)](https://goreportcard.com/report/github.com/unification-com/mainchain)
 
-TomoChain relies on a system of 150 Masternodes with a Proof of Stake Voting consensus that can support near-zero fee, and 2-second transaction confirmation times.
-Security, stability, and chain finality are guaranteed via novel techniques such as double validation, staking via smart-contracts, and "true" randomization processes.
 
-Tomochain supports all EVM-compatible smart-contracts, protocols, and atomic cross-chain token transfers.
-New scaling techniques such as sharding, private-chain generation, and hardware integration will be continuously researched and incorporated into Tomochain's masternode architecture. This architecture will be an ideal scalable smart-contract public blockchain for decentralized apps, token issuances, and token integrations for small and big businesses.
+## UND Test-net
 
-More details can be found at our [technical white paper](https://tomochain.com/docs/technical-whitepaper---1.0.pdf)
+The Mainchain protocol is excercised by EVs in a test-net which can be found at 52.14.173.249 on ports 30401, 30402, 30403.
 
-Read more about us on:
-
-- our website: http://tomochain.com
-- our blogs and announcements: https://medium.com/tomochain
-- our documentation portal: https://docs.tomochain.com
 
 ## Building the source
 
-Tomochain provides a client binary called `tomo` for both running a masternode and running a full-node.
-Building `tomo` requires both a Go (1.7+) and C compiler; install both of these.
+Building `und` requires both a Go (version 1.9 or later) and a C compiler.
+You can install them using your favourite package manager.
+Once the dependencies are installed, run
 
-Once the dependencies are installed, just run the below commands:
+    make und
 
-```bash
-$ git clone https://github.com/tomochain/tomochain tomochain
-$ cd tomochain
-$ make tomo
-```
+or, to build the full suite of utilities:
 
-Alternatively, you could quickly download our pre-complied binary from our [github release page](https://github.com/tomochain/tomochain/releases)
+    make all
 
-## Running tomo
+## Executables
 
-### Running a tomo masternode
+The UND mainchain project comes with several wrappers/executables found in the `cmd` directory.
 
-Please refer to the [official documentation](https://docs.tomochain.com/get-started/run-node/) on how to run a node if your goal is to run a masternode.
-The recommanded ways of running a node and applying to become a masternode are explained in detail there.
+| Command    | Description |
+|:----------:|-------------|
+| **`und`** | The main CLI client. It is the entry point into the UND Mainchain network, capable of running as a full node (default), archive node (retaining all historical state) or a light node (retrieving data live). It can be used by other processes as a gateway into the network via JSON RPC endpoints exposed on top of HTTP, WebSocket and/or IPC transports. `und --help` for command line options. **Note** - UND Mainchain does not implement the PoW consensus, and EVs (block producers) need to be proposed, voted for and authorised |
+| `abigen` | Source code generator to convert contract definitions into easy to use, compile-time type-safe Go packages. It operates on plain contract ABIs with expanded functionality if the contract bytecode is also available. However it also accepts Solidity source files, making development much more streamlined. |
+| `bootnode` | Stripped down version of our client implementation that only takes part in the network node discovery protocol, but does not run any of the higher level application protocols. It can be used as a lightweight bootstrap node to aid in finding peers in private networks. |
+| `evm` | Developer utility version of the EVM (Ethereum Virtual Machine) that is capable of running bytecode snippets within a configurable environment and execution mode. Its purpose is to allow isolated, fine-grained debugging of EVM opcodes (e.g. `evm --code 60ff60ff --debug`). |
+| `rlpdump` | Developer utility tool to convert binary RLP ([Recursive Length Prefix](https://github.com/ethereum/wiki/wiki/RLP)) dumps (data encoding used by the protocol both network as well as consensus wise) to user friendlier hierarchical representation (e.g. `rlpdump --hex CE0183FFFFFFC4C304050583616263`). |
+| `puppeth`    | a CLI wizard that aids in creating a new network. |
+| `undgenesis`    | a stripped down puppeth for generating a network using the Poaund consensus. |
 
-### Attaching to the Tomochain test network
 
-We published our test network 2.0 with full implementation of PoSV consensus at https://stats.testnet.tomochain.com.
-If you'd like to experiment with smart contract creation and DApps, you might be interested to give these a try on our Testnet.
+### Configuration
 
-In order to connect to one of the masternodes on the Testnet, just run the command below:
-
-```bash
-$ tomo attach https://testnet.tomochain.com
-```
-
-This will open the JavaScript console and let you query the blockchain directly via RPC.
-
-### Running tomo locally
-
-If you would like to run tomo locally to see how it works under the hood and have a copy of the blockchain, you can try it on our Testnet by running the commands below:
-
-```bash
-// 1. create a folder to store tomochain data on your machine
-$ export DATA_DIR=/path/to/your/data/folder
-$ mkdir -p $DATA_DIR/tomo
-
-// 2. download our genesis file
-$ export GENESIS_PATH=$DATA_DIR/genesis.json
-$ curl -L https://raw.githubusercontent.com/tomochain/tomochain/master/genesis/testnet.json -o $GENESIS_PATH
-
-// 3. init the chain from genesis
-$ tomo init $GENESIS_PATH --datadir $DATA_DIR
-
-// 4. get a test account. Create a new one if you don't have any:
-$ export KEYSTORE_DIR=keystore
-$ touch $DATA_DIR/password && echo 'your-password' > $DATA_DIR/password
-$ tomo account new \
-      --datadir $DATA_DIR \
-      --keystore $KEYSTORE_DIR \
-      --password $DATA_DIR/password
-
-// if you already have a test account, import it now
-$ tomo  account import ./private_key \
-      --datadir $DATA_DIR \
-      --keystore $KEYSTORE_DIR \
-      --password $DATA_DIR/password
-
-// get the account
-$ account=$(
-  tomo account list --datadir $DATA_DIR  --keystore $KEYSTORE_DIR \
-  2> /dev/null \
-  | head -n 1 \
-  | cut -d"{" -f 2 | cut -d"}" -f 1
-)
-
-// 5. prepare the bootnodes list
-$ export BOOTNODES="enode://4d3c2cc0ce7135c1778c6f1cfda623ab44b4b6db55289543d48ecfde7d7111fd420c42174a9f2fea511a04cf6eac4ec69b4456bfaaae0e5bd236107d3172b013@52.221.28.223:30301,enode://298780104303fcdb37a84c5702ebd9ec660971629f68a933fd91f7350c54eea0e294b0857f1fd2e8dba2869fcc36b83e6de553c386cf4ff26f19672955d9f312@13.251.101.216:30301,enode://46dba3a8721c589bede3c134d755eb1a38ae7c5a4c69249b8317c55adc8d46a369f98b06514ecec4b4ff150712085176818d18f59a9e6311a52dbe68cff5b2ae@13.250.94.232:30301"
-
-// 6. Start up tomo now
-$ export NAME=YOUR_NODE_NAME
-$ tomo \
-  --verbosity 4 \
-  --datadir $DATA_DIR \
-  --keystore $KEYSTORE_DIR \
-  --identity $NAME \
-  --password $DATA_DIR \
-  --networkid 89 \
-  --port 30303 \
-  --rpc \
-  --rpccorsdomain "*" \
-  --rpcaddr 0.0.0.0 \
-  --rpcport 8545 \
-  --rpcvhosts "*" \
-  --ws \
-  --wsaddr 0.0.0.0 \
-  --wsport 8546 \
-  --wsorigins "*" \
-  --mine \
-  --gasprice "1" \
-  --targetgaslimit "420000000"
-```
-
-*Some explanations on the flags*
+As an alternative to passing the numerous flags to the `und` binary, you can also pass a configuration file via:
 
 ```
---verbosity: log level from 1 to 5. Here we're using 4 for debug messages
---datadir: path to your data directory created above.
---keystore: path to your account's keystore created above.
---identity: your full-node's name.
---password: your account's password.
---networkid: our testnet network ID.
---port: your full-node's listening port (default to 30303)
---rpc, --rpccorsdomain, --rpcaddr, --rpcport, --rpcvhosts: your full-node will accept RPC requests at 8545 TCP.
---ws, --wsaddr, --wsport, --wsorigins: your full-node will accept Websocket requests at 8546 TCP.
---mine: your full-node wants to register to be a candidate for masternode selection.
---gasprice: Minimal gas price to accept for mining a transaction.
---targetgaslimit: Target gas limit sets the artificial target gas floor for the blocks to mine (default: 4712388)
+$ und --config /path/to/your_config.toml
 ```
 
-## Road map
+To get an idea how the file should look like you can use the `dumpconfig` subcommand to export your existing configuration:
 
-The implementation of the following features is being studied by our research team:
+```
+$ und --your-favourite-flags dumpconfig
+```
 
-- Layer 2 scalability with state sharding
-- DEX integration
-- Spam filtering
-- Multi-chain interoperabilty
+*Note: This works only with und v1.6.0 and above.*
 
-## Contributing and technical discussion
+### Programatically interfacing Und nodes
 
-Thank you for considering to try out our network and/or help out with the source code.
-We would love to get your help; feel free to lend a hand.
-Even the smallest bit of code, bug reporting, or just discussing ideas are highly appreciated.
+As a developer, sooner rather than later you'll want to start interacting with Und and the
+network via your own programs and not manually through the console. To aid this, Und has built-in
+support for a JSON-RPC based APIs ([standard APIs](https://github.com/ethereum/wiki/wiki/JSON-RPC) and
+[Geth specific APIs](https://github.com/unification-com/mainchain/wiki/Management-APIs)). These can be
+exposed via HTTP, WebSockets and IPC (unix sockets on unix based platforms, and named pipes on Windows).
 
-If you would like to contribute to the tomochain source code, please refer to our Developer Guide for details on configuring development environment, managing dependencies, compiling, testing and submitting your code changes to our repo.
+The IPC interface is enabled by default and exposes all the APIs supported by Und, whereas the HTTP
+and WS interfaces need to manually be enabled and only expose a subset of APIs due to security reasons.
+These can be turned on/off and configured as you'd expect.
 
-Please also make sure your contributions adhere to the base coding guidelines:
+HTTP based JSON-RPC API options:
 
-- Code must adhere to official Go [formatting](https://golang.org/doc/effective_go.html#formatting) guidelines (i.e uses [gofmt](https://golang.org/cmd/gofmt/)).
-- Code comments must adhere to the official Go [commentary](https://golang.org/doc/effective_go.html#commentary) guidelines.
-- Pull requests need to be based on and opened against the `master` branch.
-- Any code you are trying to contribute must be well-explained as an issue on our [github issue page](https://github.com/tomochain/tomochain/issues)
-- Commit messages should be short but clear enough and should refer to the corresponding pre-logged issue mentioned above.
+  * `--rpc` Enable the HTTP-RPC server
+  * `--rpcaddr` HTTP-RPC server listening interface (default: "localhost")
+  * `--rpcport` HTTP-RPC server listening port (default: 8545)
+  * `--rpcapi` API's offered over the HTTP-RPC interface (default: "eth,net,web3")
+  * `--rpccorsdomain` Comma separated list of domains from which to accept cross origin requests (browser enforced)
+  * `--ws` Enable the WS-RPC server
+  * `--wsaddr` WS-RPC server listening interface (default: "localhost")
+  * `--wsport` WS-RPC server listening port (default: 8546)
+  * `--wsapi` API's offered over the WS-RPC interface (default: "eth,net,web3")
+  * `--wsorigins` Origins from which to accept websockets requests
+  * `--ipcdisable` Disable the IPC-RPC server
+  * `--ipcapi` API's offered over the IPC-RPC interface (default: "admin,debug,eth,miner,net,personal,shh,txpool,web3")
+  * `--ipcpath` Filename for IPC socket/pipe within the datadir (explicit paths escape it)
 
-For technical discussion, feel free to join our chat at [Gitter](https://gitter.im/tomochain/tomochain).
+You'll need to use your own programming environments' capabilities (libraries, tools, etc) to connect
+via HTTP, WS or IPC to a Und node configured with the above flags and you'll need to speak [JSON-RPC](https://www.jsonrpc.org/specification)
+on all transports. You can reuse the same connection for multiple requests!
+
+**Note: Please understand the security implications of opening up an HTTP/WS based transport before
+doing so! Hackers on the internet are actively trying to subvert nodes with exposed APIs!
+Further, all browser tabs can access locally running webservers, so malicious webpages could try to
+subvert locally available APIs!**
+
+## Contribution
+
+Thank you for considering to help out with the source code! We welcome contributions from
+anyone on the internet, and are grateful for even the smallest of fixes!
+
+If you'd like to contribute to mainchain, please fork, fix, commit and send a pull request
+for the maintainers to review and merge into the main code base.
+
+Please make sure your contributions adhere to our coding guidelines:
+
+ * Code must adhere to the official Go [formatting](https://golang.org/doc/effective_go.html#formatting) guidelines (i.e. uses [gofmt](https://golang.org/cmd/gofmt/)).
+ * Code must be documented adhering to the official Go [commentary](https://golang.org/doc/effective_go.html#commentary) guidelines.
+ * Pull requests need to be based on and opened against the `master` branch.
+ * Commit messages should be prefixed with the package(s) they modify.
+   * E.g. "eth, rpc: make trace configs optional"
+
+## License
+
+The mainchain library (i.e. all code outside of the `cmd` directory) is licensed under the
+[GNU Lesser General Public License v3.0](https://www.gnu.org/licenses/lgpl-3.0.en.html), also
+included in our repository in the `COPYING.LESSER` file.
+
+The mainchain binaries (i.e. all code inside of the `cmd` directory) is licensed under the
+[GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.en.html), also included
+in our repository in the `COPYING` file.
