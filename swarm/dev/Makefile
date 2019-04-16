@@ -4,7 +4,7 @@ default: build
 
 build:
 	go build -o bin/swarm    github.com/unification-com/mainchain/cmd/swarm
-	go build -o bin/tomo     github.com/unification-com/mainchain/cmd/tomo
+	go build -o bin/und     github.com/unification-com/mainchain/cmd/und
 	go build -o bin/bootnode github.com/unification-com/mainchain/cmd/bootnode
 
 cluster: build

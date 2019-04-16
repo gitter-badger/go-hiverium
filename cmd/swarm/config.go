@@ -59,18 +59,18 @@ var (
 //constants for environment variables
 const (
 	SWARM_ENV_CHEQUEBOOK_ADDR = "SWARM_CHEQUEBOOK_ADDR"
-	SWARM_ENV_ACCOUNT         = "SWARM_ACCOUNT"
-	SWARM_ENV_LISTEN_ADDR     = "SWARM_LISTEN_ADDR"
-	SWARM_ENV_PORT            = "SWARM_PORT"
-	SWARM_ENV_NETWORK_ID      = "SWARM_NETWORK_ID"
-	SWARM_ENV_SWAP_ENABLE     = "SWARM_SWAP_ENABLE"
-	SWARM_ENV_SWAP_API        = "SWARM_SWAP_API"
-	SWARM_ENV_SYNC_ENABLE     = "SWARM_SYNC_ENABLE"
-	SWARM_ENV_ENS_API         = "SWARM_ENS_API"
-	SWARM_ENV_ENS_ADDR        = "SWARM_ENS_ADDR"
-	SWARM_ENV_CORS            = "SWARM_CORS"
-	SWARM_ENV_BOOTNODES       = "SWARM_BOOTNODES"
-	TOMO_ENV_DATADIR          = "TOMO_DATADIR"
+	SWARM_ENV_ACCOUNT     = "SWARM_ACCOUNT"
+	SWARM_ENV_LISTEN_ADDR = "SWARM_LISTEN_ADDR"
+	SWARM_ENV_PORT        = "SWARM_PORT"
+	SWARM_ENV_NETWORK_ID  = "SWARM_NETWORK_ID"
+	SWARM_ENV_SWAP_ENABLE = "SWARM_SWAP_ENABLE"
+	SWARM_ENV_SWAP_API    = "SWARM_SWAP_API"
+	SWARM_ENV_SYNC_ENABLE = "SWARM_SYNC_ENABLE"
+	SWARM_ENV_ENS_API     = "SWARM_ENS_API"
+	SWARM_ENV_ENS_ADDR    = "SWARM_ENS_ADDR"
+	SWARM_ENV_CORS        = "SWARM_CORS"
+	SWARM_ENV_BOOTNODES   = "SWARM_BOOTNODES"
+	UND_ENV_DATADIR       = "UND_DATADIR"
 )
 
 // These settings ensure that TOML keys use the same names as Go struct fields.
@@ -116,7 +116,7 @@ func initSwarmNode(config *bzzapi.Config, stack *node.Node, ctx *cli.Context) {
 	//at this point, all vars should be set in the Config
 	//get the account for the provided swarm account
 	prvkey := getAccount(config.BzzAccount, ctx, stack)
-	//set the resolved config path (tomo --datadir)
+	//set the resolved config path (und --datadir)
 	config.Path = stack.InstanceDir()
 	//finally, initialize the configuration
 	config.Init(prvkey)
@@ -243,7 +243,7 @@ func envVarsOverride(currentConfig *bzzapi.Config) (config *bzzapi.Config) {
 		}
 	}
 
-	if datadir := os.Getenv(TOMO_ENV_DATADIR); datadir != "" {
+	if datadir := os.Getenv(UND_ENV_DATADIR); datadir != "" {
 		currentConfig.Path = datadir
 	}
 

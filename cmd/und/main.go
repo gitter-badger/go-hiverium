@@ -41,14 +41,14 @@ import (
 )
 
 const (
-	clientIdentifier = "tomo" // Client identifier to advertise over the network
+	clientIdentifier = "und" // Client identifier to advertise over the network
 )
 
 var (
 	// Git SHA1 commit hash of the release (set via linker flags)
 	gitCommit = ""
 	// The app that holds all commands and flags.
-	app = utils.NewApp(gitCommit, "the tomochain command line interface")
+	app = utils.NewApp(gitCommit, "the und mainchain command line interface")
 	// flags that configure the node
 	nodeFlags = []cli.Flag{
 		utils.IdentityFlag,
@@ -110,7 +110,7 @@ var (
 		//utils.TestnetFlag,
 		//utils.RinkebyFlag,
 		//utils.VMEnableDebugFlag,
-		utils.TomoTestnetFlag,
+		utils.UndTestnetFlag,
 		utils.NetworkIdFlag,
 		utils.RPCCORSDomainFlag,
 		utils.RPCVirtualHostsFlag,
@@ -149,10 +149,10 @@ var (
 )
 
 func init() {
-	// Initialize the CLI app and start tomo
-	app.Action = tomo
+	// Initialize the CLI app and start und
+	app.Action = und
 	app.HideVersion = true // we have a command to print the version
-	app.Copyright = "Copyright (c) 2018 Tomochain"
+	app.Copyright = "Copyright (c) 2019 Unification Foundation"
 	app.Commands = []cli.Command{
 		// See chaincmd.go:
 		initCommand,
@@ -206,10 +206,10 @@ func main() {
 	}
 }
 
-// tomo is the main entry point into the system if no special subcommand is ran.
+// und is the main entry point into the system if no special subcommand is ran.
 // It creates a default node based on the command line arguments and runs it in
 // blocking mode, waiting for it to be shut down.
-func tomo(ctx *cli.Context) error {
+func und(ctx *cli.Context) error {
 	node, cfg := makeFullNode(ctx)
 	startNode(ctx, node, cfg)
 	node.Wait()
@@ -219,7 +219,7 @@ func tomo(ctx *cli.Context) error {
 // startNode boots up the system node and all registered protocols, after which
 // it unlocks any requested accounts, and starts the RPC/IPC interfaces and the
 // miner.
-func startNode(ctx *cli.Context, stack *node.Node, cfg tomoConfig) {
+func startNode(ctx *cli.Context, stack *node.Node, cfg undConfig) {
 	// Start up the node itself
 	utils.StartNode(stack)
 

@@ -39,7 +39,6 @@ The UND mainchain project comes with several wrappers/executables found in the `
 | `evm` | Developer utility version of the EVM (Ethereum Virtual Machine) that is capable of running bytecode snippets within a configurable environment and execution mode. Its purpose is to allow isolated, fine-grained debugging of EVM opcodes (e.g. `evm --code 60ff60ff --debug`). |
 | `rlpdump` | Developer utility tool to convert binary RLP ([Recursive Length Prefix](https://github.com/ethereum/wiki/wiki/RLP)) dumps (data encoding used by the protocol both network as well as consensus wise) to user friendlier hierarchical representation (e.g. `rlpdump --hex CE0183FFFFFFC4C304050583616263`). |
 | `puppeth`    | a CLI wizard that aids in creating a new network. |
-| `undgenesis`    | a stripped down puppeth for generating a network using the Poaund consensus. |
 
 
 ### Configuration

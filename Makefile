@@ -1,6 +1,6 @@
-.PHONY: tomo tomo-cross evm all test clean
-.PHONY: tomo-linux tomo-linux-386 tomo-linux-amd64 tomo-linux-mips64 tomo-linux-mips64le
-.PHONY: tomo-darwin tomo-darwin-386 tomo-darwin-amd64
+.PHONY: und und-cross evm all test clean
+.PHONY: und-linux und-linux-386 und-linux-amd64 und-linux-mips64 und-linux-mips64le
+.PHONY: und-darwin und-darwin-386 und-darwin-amd64
 
 GOBIN = $(shell pwd)/build/bin
 GOFMT = gofmt
@@ -10,10 +10,10 @@ GO_FILES := $(shell find $(shell go list -f '{{.Dir}}' $(GO_PACKAGES)) -name \*.
 
 GIT = git
 
-tomo:
-	build/env.sh go run build/ci.go install ./cmd/tomo
+und:
+	build/env.sh go run build/ci.go install ./cmd/und
 	@echo "Done building."
-	@echo "Run \"$(GOBIN)/tomo\" to launch tomo."
+	@echo "Run \"$(GOBIN)/und\" to launch und."
 
 bootnode:
 	build/env.sh go run build/ci.go install ./cmd/bootnode
@@ -36,57 +36,57 @@ clean:
 
 # Cross Compilation Targets (xgo)
 
-tomo-cross: tomo-linux tomo-darwin
+und-cross: und-linux und-darwin
 	@echo "Full cross compilation done:"
-	@ls -ld $(GOBIN)/tomo-*
+	@ls -ld $(GOBIN)/und-*
 
-tomo-linux: tomo-linux-386 tomo-linux-amd64 tomo-linux-mips64 tomo-linux-mips64le
+und-linux: und-linux-386 und-linux-amd64 und-linux-mips64 und-linux-mips64le
 	@echo "Linux cross compilation done:"
-	@ls -ld $(GOBIN)/tomo-linux-*
+	@ls -ld $(GOBIN)/und-linux-*
 
-tomo-linux-386:
-	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=linux/386 -v ./cmd/tomo
+und-linux-386:
+	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=linux/386 -v ./cmd/und
 	@echo "Linux 386 cross compilation done:"
-	@ls -ld $(GOBIN)/tomo-linux-* | grep 386
+	@ls -ld $(GOBIN)/und-linux-* | grep 386
 
-tomo-linux-amd64:
-	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=linux/amd64 -v ./cmd/tomo
+und-linux-amd64:
+	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=linux/amd64 -v ./cmd/und
 	@echo "Linux amd64 cross compilation done:"
-	@ls -ld $(GOBIN)/tomo-linux-* | grep amd64
+	@ls -ld $(GOBIN)/und-linux-* | grep amd64
 
-tomo-linux-mips:
-	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=linux/mips --ldflags '-extldflags "-static"' -v ./cmd/tomo
+und-linux-mips:
+	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=linux/mips --ldflags '-extldflags "-static"' -v ./cmd/und
 	@echo "Linux MIPS cross compilation done:"
-	@ls -ld $(GOBIN)/tomo-linux-* | grep mips
+	@ls -ld $(GOBIN)/und-linux-* | grep mips
 
-tomo-linux-mipsle:
-	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=linux/mipsle --ldflags '-extldflags "-static"' -v ./cmd/tomo
+und-linux-mipsle:
+	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=linux/mipsle --ldflags '-extldflags "-static"' -v ./cmd/und
 	@echo "Linux MIPSle cross compilation done:"
-	@ls -ld $(GOBIN)/tomo-linux-* | grep mipsle
+	@ls -ld $(GOBIN)/und-linux-* | grep mipsle
 
-tomo-linux-mips64:
-	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=linux/mips64 --ldflags '-extldflags "-static"' -v ./cmd/tomo
+und-linux-mips64:
+	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=linux/mips64 --ldflags '-extldflags "-static"' -v ./cmd/und
 	@echo "Linux MIPS64 cross compilation done:"
-	@ls -ld $(GOBIN)/tomo-linux-* | grep mips64
+	@ls -ld $(GOBIN)/und-linux-* | grep mips64
 
-tomo-linux-mips64le:
-	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=linux/mips64le --ldflags '-extldflags "-static"' -v ./cmd/tomo
+und-linux-mips64le:
+	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=linux/mips64le --ldflags '-extldflags "-static"' -v ./cmd/und
 	@echo "Linux MIPS64le cross compilation done:"
-	@ls -ld $(GOBIN)/tomo-linux-* | grep mips64le
+	@ls -ld $(GOBIN)/und-linux-* | grep mips64le
 
-tomo-darwin: tomo-darwin-386 tomo-darwin-amd64
+und-darwin: und-darwin-386 und-darwin-amd64
 	@echo "Darwin cross compilation done:"
-	@ls -ld $(GOBIN)/tomo-darwin-*
+	@ls -ld $(GOBIN)/und-darwin-*
 
-tomo-darwin-386:
-	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=darwin/386 -v ./cmd/tomo
+und-darwin-386:
+	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=darwin/386 -v ./cmd/und
 	@echo "Darwin 386 cross compilation done:"
-	@ls -ld $(GOBIN)/tomo-darwin-* | grep 386
+	@ls -ld $(GOBIN)/und-darwin-* | grep 386
 
-tomo-darwin-amd64:
-	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=darwin/amd64 -v ./cmd/tomo
+und-darwin-amd64:
+	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=darwin/amd64 -v ./cmd/und
 	@echo "Darwin amd64 cross compilation done:"
-	@ls -ld $(GOBIN)/tomo-darwin-* | grep amd64
+	@ls -ld $(GOBIN)/und-darwin-* | grep amd64
 
 gofmt:
 	$(GOFMT) -s -w $(GO_FILES)
