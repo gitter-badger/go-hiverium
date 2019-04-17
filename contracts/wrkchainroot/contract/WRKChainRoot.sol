@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity >=0.4.22 <0.6.0;
 
 contract WRKChainRoot {
 
@@ -15,7 +15,7 @@ contract WRKChainRoot {
 
     mapping(address => bool) registrars;
 
-    address public masterRegistrar;
+    address masterRegistrar;
 
     //RecordHeader event
     event RecordHeader(
@@ -50,7 +50,7 @@ contract WRKChainRoot {
     //Contract constructor.
     constructor(address _ownerRegistrar) public
     {
-        masterRegistrar = _ownerRegistrar;
+        //masterRegistrar = _ownerRegistrar;
     }
 
     function addRegistrar(address _registrar) public onlyRegistrar {
