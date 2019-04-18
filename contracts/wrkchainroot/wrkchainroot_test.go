@@ -28,20 +28,38 @@ import (
 )
 
 var (
-	ownerKey, _ = crypto.HexToECDSA("02c10f620820398d7df4c6157e48f86d65456346ff5633483a9e2384de732795")
-	ownerAddr   = crypto.PubkeyToAddress(ownerKey.PublicKey)
+	masterRegistrarKey, _ = crypto.HexToECDSA("02c10f620820398d7df4c6157e48f86d65456346ff5633483a9e2384de732795")
+	masterRegistrarAddr   = crypto.PubkeyToAddress(masterRegistrarKey.PublicKey)
+	wrkchainKey, _ = crypto.HexToECDSA("8ad09b7c563340f3216650b3007f87723b2b2f3fd4c81f31aa91801bf31d404b")
+	wrkchainAddr = crypto.PubkeyToAddress(wrkchainKey.PublicKey)
+	accKey1, _ = crypto.HexToECDSA("d7c15922c5371f9536f8b1cef750d5451b01f57b2865278fef6bd65c9a17a3a3")
+	accAddr1 = crypto.PubkeyToAddress(accKey1.PublicKey)
+	accKey2, _ = crypto.HexToECDSA("e6d90f41cebb11eb6f5f5d7b71a49f3f4309d78ffb3e66eaa6c7af94c7d99d41")
+	accAddr2 = crypto.PubkeyToAddress(accKey2.PublicKey)
+	accKey3, _ = crypto.HexToECDSA("dc23751c35323b70ad70ec2d08d9be59b74f8491baccc87123a0c0ffdfa24936")
+	accAddr3 = crypto.PubkeyToAddress(accKey3.PublicKey)
 )
 
 func TestWrkchainRootDeploy(t *testing.T) {
-	contractBackend := backends.NewSimulatedBackend(core.GenesisAlloc{ownerAddr: {Balance: big.NewInt(999999999999999999)}})
-	transactOpts := bind.NewKeyedTransactor(ownerKey)
+	balance := new(big.Int)
+	balance.SetString("10000000000000000000", 10)
 
-	ownerBalance, _ := contractBackend.BalanceAt(context.Background(), ownerAddr, big.NewInt(0))
+	genesisAlloc := map[common.Address]core.GenesisAccount{
+		masterRegistrarAddr: {
+			Balance: balance,
+		},
+	}
 
-	t.Log("master registrar", ownerAddr.Hex())
+	contractBackend := backends.NewSimulatedBackend(genesisAlloc)
+
+	transactOpts := bind.NewKeyedTransactor(masterRegistrarKey)
+
+	ownerBalance, _ := contractBackend.BalanceAt(context.Background(), masterRegistrarAddr, big.NewInt(0))
+
+	t.Log("master registrar", masterRegistrarAddr.Hex())
 	t.Log("master registrar balance", ownerBalance)
 
-	wrkchainRootAddress, _, err := DeployWrkchainRoot(transactOpts, contractBackend, ownerAddr)
+	wrkchainRootAddress, _, err := DeployWrkchainRoot(transactOpts, contractBackend, masterRegistrarAddr)
 	if err != nil {
 		t.Fatalf("can't deploy wrkchainroot: %v", err)
 	}
@@ -55,4 +73,82 @@ func TestWrkchainRootDeploy(t *testing.T) {
 	}
 
 	t.Log("contract code", common.ToHex(code))
+	t.Log("contract address", wrkchainRootAddress.Hex())
+}
+
+func TestAddRegistrar(t *testing.T) {
+	balance := new(big.Int)
+	balance.SetString("10000000000000000000", 10)
+
+	genesisAlloc := map[common.Address]core.GenesisAccount{
+		masterRegistrarAddr: {
+			Balance: balance,
+		},
+		accAddr1: {
+			Balance: balance,
+		},
+	}
+
+	contractBackend := backends.NewSimulatedBackend(genesisAlloc)
+
+	transactOptsMaster := bind.NewKeyedTransactor(masterRegistrarKey)
+	transactOptsAcc1 := bind.NewKeyedTransactor(accKey1)
+
+	wrkchainRootAddress, wrkchainRoot, err := DeployWrkchainRoot(transactOptsMaster, contractBackend, masterRegistrarAddr)
+	if err != nil {
+		t.Fatalf("can't deploy wrkchainroot: %v", err)
+	}
+	contractBackend.Commit()
+
+
+	d := time.Now().Add(1000 * time.Millisecond)
+	ctx, cancel := context.WithDeadline(context.Background(), d)
+	defer cancel()
+
+	f := func(key, val common.Hash) bool {
+		t.Log(key.Hex(), val.Hex())
+		return true
+	}
+	contractBackend.ForEachStorageAt(ctx, wrkchainRootAddress, nil, f)
+
+	masterRegistrar, err := wrkchainRoot.GetMasterRegistrar()
+
+	t.Logf("masterRegistrar: %v", masterRegistrar.Hex())
+
+	// Master Registrar adds accAddr1
+	tx, err := wrkchainRoot.AddRegistrar(accAddr1)
+
+	if err != nil {
+		t.Fatalf("can't add registrar: %v", err)
+	}
+	contractBackend.Commit()
+	t.Log("AddRegistrar Tx", tx)
+
+	contractBackend.ForEachStorageAt(ctx, wrkchainRootAddress, nil, f)
+
+	// accAddr1 adds accAddr2 as registrar
+	acc1Registrar, _ := NewWrkchainRoot(transactOptsAcc1, wrkchainRootAddress, contractBackend)
+
+	tx1, err1 := acc1Registrar.AddRegistrar(accAddr2)
+
+	if err1 != nil {
+		t.Fatalf("can't add registrar: %v", err1)
+	}
+	contractBackend.Commit()
+	t.Log("AddRegistrar Tx", tx1)
+
+	// Master removes accAddr1
+	tx2, err2 := wrkchainRoot.RemoveRegistrar(accAddr1)
+
+	if err2 != nil {
+		t.Fatalf("can't remove registrar: %v", err2)
+	}
+	contractBackend.Commit()
+	t.Log("RemoveRegistrar Tx", tx2)
+
+	// accAddr1 tries to add accAddr3 after being removed
+	_, err3 := acc1Registrar.AddRegistrar(accAddr3)
+	if err3 == nil {
+		t.Fatalf("accAddr1 was able to add accAddr3: %v", err2)
+	}
 }
