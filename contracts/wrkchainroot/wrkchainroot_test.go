@@ -38,15 +38,17 @@ var (
 	accAddr2 = crypto.PubkeyToAddress(accKey2.PublicKey)
 	accKey3, _ = crypto.HexToECDSA("dc23751c35323b70ad70ec2d08d9be59b74f8491baccc87123a0c0ffdfa24936")
 	accAddr3 = crypto.PubkeyToAddress(accKey3.PublicKey)
+	wrkchainId1 = new(big.Int).SetUint64(12345)
+	wrkchainAuthAddresses1 = []common.Address{accAddr1}
+	wrkchainGenesisHash1 = [32]byte{'x'}
+	genesisBalance = big.NewInt(1000000000000000000)
 )
 
 func TestWrkchainRootDeploy(t *testing.T) {
-	balance := new(big.Int)
-	balance.SetString("10000000000000000000", 10)
 
 	genesisAlloc := map[common.Address]core.GenesisAccount{
 		masterRegistrarAddr: {
-			Balance: balance,
+			Balance: genesisBalance,
 		},
 	}
 
@@ -76,16 +78,14 @@ func TestWrkchainRootDeploy(t *testing.T) {
 	t.Log("contract address", wrkchainRootAddress.Hex())
 }
 
-func TestAddRegistrar(t *testing.T) {
-	balance := new(big.Int)
-	balance.SetString("10000000000000000000", 10)
+func TestAddRemoveRegistrar(t *testing.T) {
 
 	genesisAlloc := map[common.Address]core.GenesisAccount{
 		masterRegistrarAddr: {
-			Balance: balance,
+			Balance: genesisBalance,
 		},
 		accAddr1: {
-			Balance: balance,
+			Balance: genesisBalance,
 		},
 	}
 
@@ -146,9 +146,108 @@ func TestAddRegistrar(t *testing.T) {
 	contractBackend.Commit()
 	t.Log("RemoveRegistrar Tx", tx2)
 
-	// accAddr1 tries to add accAddr3 after being removed
-	_, err3 := acc1Registrar.AddRegistrar(accAddr3)
-	if err3 == nil {
-		t.Fatalf("accAddr1 was able to add accAddr3: %v", err2)
+}
+
+func TestUnauthAddRegistrar(t *testing.T) {
+	genesisAlloc := map[common.Address]core.GenesisAccount{
+		masterRegistrarAddr: {
+			Balance: genesisBalance,
+		},
+		accAddr1: {
+			Balance: genesisBalance,
+		},
 	}
+
+	contractBackend := backends.NewSimulatedBackend(genesisAlloc)
+
+	transactOptsMaster := bind.NewKeyedTransactor(masterRegistrarKey)
+	transactOptsAcc1 := bind.NewKeyedTransactor(accKey1)
+
+	wrkchainRootAddress, _, err := DeployWrkchainRoot(transactOptsMaster, contractBackend, masterRegistrarAddr)
+	if err != nil {
+		t.Fatalf("can't deploy wrkchainroot: %v", err)
+	}
+	contractBackend.Commit()
+
+	acc1Registrar, _ := NewWrkchainRoot(transactOptsAcc1, wrkchainRootAddress, contractBackend)
+
+	// unauthorised accAddr1 tries to add accAddr3
+	_, err1 := acc1Registrar.AddRegistrar(accAddr3)
+
+	contractBackend.Commit()
+	if err1 == nil {
+		t.Fatalf("accAddr1 was able to add accAddr3: %v", err1)
+	}
+}
+
+func TestRegisterWrkchain(t *testing.T) {
+
+	genesisAlloc := map[common.Address]core.GenesisAccount{
+		masterRegistrarAddr: {
+			Balance: genesisBalance,
+		},
+	}
+
+	contractBackend := backends.NewSimulatedBackend(genesisAlloc)
+
+	transactOptsMaster := bind.NewKeyedTransactor(masterRegistrarKey)
+
+	_, wrkchainRoot, err := DeployWrkchainRoot(transactOptsMaster, contractBackend, masterRegistrarAddr)
+	if err != nil {
+		t.Fatalf("can't deploy wrkchainroot: %v", err)
+	}
+	contractBackend.Commit()
+
+	// Master Registrar registers a WRKChain
+	tx, err := wrkchainRoot.RegisterWrkChain(wrkchainId1, wrkchainAuthAddresses1, wrkchainGenesisHash1)
+	contractBackend.Commit()
+	if err != nil {
+		t.Fatalf("can't register wrkchain: %v", err)
+	}
+
+	t.Log("RegisterWrkChain Tx", tx)
+
+}
+
+func TestRecordHeader(t *testing.T) {
+	genesisAlloc := map[common.Address]core.GenesisAccount{
+		masterRegistrarAddr: {
+			Balance: genesisBalance,
+		},
+		accAddr1: {
+			Balance: genesisBalance,
+		},
+	}
+
+	contractBackend := backends.NewSimulatedBackend(genesisAlloc)
+
+	transactOptsMaster := bind.NewKeyedTransactor(masterRegistrarKey)
+	transactOptsAcc1 := bind.NewKeyedTransactor(accKey1)
+
+	wrkchainRootAddress, wrkchainRoot, _ := DeployWrkchainRoot(transactOptsMaster, contractBackend, masterRegistrarAddr)
+	contractBackend.Commit()
+	// Master Registrar registers a WRKChain
+	tx, _ := wrkchainRoot.RegisterWrkChain(wrkchainId1, wrkchainAuthAddresses1, wrkchainGenesisHash1)
+	contractBackend.Commit()
+	t.Log("RegisterWrkChain Tx", tx)
+
+	acc1RecordHeader, _ := NewWrkchainRoot(transactOptsAcc1, wrkchainRootAddress, contractBackend)
+
+	tx, err := acc1RecordHeader.RecordHeader(
+		wrkchainId1,
+		new(big.Int).SetUint64(1),
+		[32]byte{'a'},
+		[32]byte{'b'},
+		[32]byte{'c'},
+		[32]byte{'d'},
+		[32]byte{'e'},
+		accAddr1,
+	)
+
+	if err != nil {
+		t.Fatalf("can't record wrkchain header: %v", err)
+	}
+
+	t.Log("RecordHeader Tx", tx)
+
 }
