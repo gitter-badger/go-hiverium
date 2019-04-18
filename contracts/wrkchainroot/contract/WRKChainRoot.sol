@@ -1,4 +1,4 @@
-pragma solidity >=0.4.22 <0.6.0;
+pragma solidity >=0.4.25;
 
 contract WRKChainRoot {
 
@@ -11,11 +11,11 @@ contract WRKChainRoot {
     }
 
     //ChainID => last block # submitted mapping
-    mapping(uint256 => Wrkchain) public wrkchainList;
+    mapping(uint256 => Wrkchain) wrkchainList;
 
     mapping(address => bool) registrars;
 
-    address masterRegistrar;
+    address private masterRegistrar;
 
     //RecordHeader event
     event RecordHeader(
@@ -48,9 +48,9 @@ contract WRKChainRoot {
     }
 
     //Contract constructor.
-    constructor(address _ownerRegistrar) public
+    function WRKChainRoot(address _masterRegistrar) public
     {
-        //masterRegistrar = _ownerRegistrar;
+        masterRegistrar = _masterRegistrar;
     }
 
     function addRegistrar(address _registrar) public onlyRegistrar {
@@ -136,8 +136,8 @@ contract WRKChainRoot {
             wrkchainList[_chainId].authAddresses[my_wrkchain.authAddressesIdx[i]] = false;
         }
 
-        for (uint i=0; i< _newAuthAddresses.length; i++) {
-            wrkchainList[_chainId].authAddresses[_newAuthAddresses[i]] = true;
+        for (uint j=0; j< _newAuthAddresses.length; j++) {
+            wrkchainList[_chainId].authAddresses[_newAuthAddresses[j]] = true;
         }
 
         wrkchainList[_chainId].authAddressesIdx = _newAuthAddresses;
@@ -158,6 +158,10 @@ contract WRKChainRoot {
         require(wrkchainList[_chainId].isWrkchain, "Chain ID does not exist");
 
         authAddressesIdx_ = wrkchainList[_chainId].authAddressesIdx;
+    }
+
+    function getMasterRegistrar() public view returns(address masterRegistrar_) {
+        masterRegistrar_ = masterRegistrar;
     }
 
 }
