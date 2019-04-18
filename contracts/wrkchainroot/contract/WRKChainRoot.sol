@@ -10,7 +10,6 @@ contract WRKChainRoot {
         address[] authAddressesIdx;
     }
 
-    //ChainID => last block # submitted mapping
     mapping(uint256 => Wrkchain) wrkchainList;
 
     mapping(address => bool) registrars;
@@ -158,6 +157,14 @@ contract WRKChainRoot {
         require(wrkchainList[_chainId].isWrkchain, "Chain ID does not exist");
 
         authAddressesIdx_ = wrkchainList[_chainId].authAddressesIdx;
+    }
+
+    // get last block number recorded for a WRKChain
+    function getLastRecordedBlockNum(uint256 _chainId) public view returns (uint256 lastBlock_) {
+        require(_chainId > 0, "Chain ID required");
+        require(wrkchainList[_chainId].isWrkchain, "Chain ID does not exist");
+
+        lastBlock_ = wrkchainList[_chainId].lastBlock;
     }
 
     function getMasterRegistrar() public view returns(address masterRegistrar_) {
