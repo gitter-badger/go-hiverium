@@ -38,6 +38,7 @@ import (
 	multiSignWalletContract "github.com/unification-com/mainchain/contracts/multisigwallet"
 	randomizeContract "github.com/unification-com/mainchain/contracts/randomize"
 	validatorContract "github.com/unification-com/mainchain/contracts/validator"
+	wrkchainRootContract "github.com/unification-com/mainchain/contracts/wrkchainroot"
 	"github.com/unification-com/mainchain/crypto"
 	"github.com/unification-com/mainchain/rlp"
 )
@@ -319,6 +320,46 @@ func (w *wizard) makeGenesis() {
 		baseBalance.Mul(baseBalance, big.NewInt(1000000000000000000))
 		genesis.Alloc[swapAddr] = core.GenesisAccount{
 			Balance: baseBalance,
+		}
+
+		// WRKChainRoot
+		fmt.Println()
+		fmt.Println("What is the Master Registrar address?")
+		masterRegistrarAddr := *w.readAddress()
+
+		wrkchainRootAddress, _, err := wrkchainRootContract.DeployWrkchainRoot(transactOpts, contractBackend, masterRegistrarAddr)
+		if err != nil {
+			fmt.Println("Can't deploy root registry")
+		}
+		contractBackend.Commit()
+
+		wrkd := time.Now().Add(1000 * time.Millisecond)
+		wrkctx, wrkcancel := context.WithDeadline(context.Background(), wrkd)
+		defer wrkcancel()
+		wrkcode, _ := contractBackend.CodeAt(wrkctx, wrkchainRootAddress, nil)
+		wrkstorage := make(map[common.Hash]common.Hash)
+		wrkf := func(key, val common.Hash) bool {
+			decode := []byte{}
+			trim := bytes.TrimLeft(val.Bytes(), "\x00")
+			rlp.DecodeBytes(trim, &decode)
+			wrkstorage[key] = common.BytesToHash(decode)
+			log.Info("DecodeBytes", "value", val.String(), "decode", storage[key].String())
+			return true
+		}
+		contractBackend.ForEachStorageAt(wrkctx, wrkchainRootAddress, nil, wrkf)
+
+		registrarBalance := big.NewInt(0)
+		registrarBalance.Add(registrarBalance, big.NewInt(10*1000)) //10,000 UND
+		registrarBalance.Mul(registrarBalance, big.NewInt(1000000000000000000))
+
+		genesis.Alloc[common.HexToAddress(common.WRKChainRoot)] = core.GenesisAccount{
+			Code:    wrkcode,
+			Storage: wrkstorage,
+			Balance: big.NewInt(0),
+		}
+
+		genesis.Alloc[masterRegistrarAddr] = core.GenesisAccount{
+			Balance: registrarBalance,
 		}
 
 	default:
