@@ -324,10 +324,15 @@ func (w *wizard) makeGenesis() {
 
 		// WRKChainRoot
 		fmt.Println()
-		fmt.Println("What is the Master Registrar address?")
-		masterRegistrarAddr := *w.readAddress()
+		fmt.Println("What is the required deposit amount for registering a WRKChain? (default 10 UND)")
+		depositAmount := big.NewInt(int64(w.readDefaultInt(10)))
+		depositAmount.Mul(depositAmount, big.NewInt(1000000000000000000))
 
-		wrkchainRootAddress, _, err := wrkchainRootContract.DeployWrkchainRoot(transactOpts, contractBackend, masterRegistrarAddr)
+		fmt.Println()
+		fmt.Println("How many block hashes does a WRKChain need to submit to get deposit refunded? (default 1000)")
+		minBlocks := big.NewInt(int64(w.readDefaultInt(1000)))
+
+		wrkchainRootAddress, _, err := wrkchainRootContract.DeployWrkchainRoot(transactOpts, contractBackend, depositAmount, minBlocks)
 		if err != nil {
 			fmt.Println("Can't deploy root registry")
 		}
@@ -348,18 +353,10 @@ func (w *wizard) makeGenesis() {
 		}
 		contractBackend.ForEachStorageAt(wrkctx, wrkchainRootAddress, nil, wrkf)
 
-		registrarBalance := big.NewInt(0)
-		registrarBalance.Add(registrarBalance, big.NewInt(10*1000)) //10,000 UND
-		registrarBalance.Mul(registrarBalance, big.NewInt(1000000000000000000))
-
 		genesis.Alloc[common.HexToAddress(common.WRKChainRoot)] = core.GenesisAccount{
 			Code:    wrkcode,
 			Storage: wrkstorage,
 			Balance: big.NewInt(0),
-		}
-
-		genesis.Alloc[masterRegistrarAddr] = core.GenesisAccount{
-			Balance: registrarBalance,
 		}
 
 	default:
