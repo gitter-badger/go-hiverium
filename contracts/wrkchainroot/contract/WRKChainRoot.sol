@@ -207,6 +207,7 @@ contract WRKChainRoot {
         address _blockSigner) public onlyAuth(_chainId) {
 
         require(_chainId > 0, "Chain ID required");
+        require(_height > 0, "Block number required");
         require(_hash.length > 0, "Hash required");
 
         require(wrkchainList[_chainId].isWrkchain, "Chain ID does not exist");
