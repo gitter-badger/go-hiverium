@@ -258,6 +258,9 @@ contract WRKChainRoot {
         }
 
         wrkchainList[_chainId].authAddressesIdx = _newAuthAddresses;
+        wrkchainList[_chainId].authAddresses[my_wrkchain.owner] = true;
+        wrkchainList[_chainId].authAddressesIdx.push(my_wrkchain.owner);
+
     }
 
     //get the Genesis hash for a WRKChain
