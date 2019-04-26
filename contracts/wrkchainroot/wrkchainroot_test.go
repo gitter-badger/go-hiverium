@@ -118,11 +118,9 @@ func TestRegisterWrkchain(t *testing.T) {
 
 	registerredHash, _ := wrkchainOwner.GetGenesis(wrkchainId1)
 	t.Log("Registered Genesis Hash", registerredHash)
-	authAddresses, _ := wrkchainOwner.GetAuthAddresses(wrkchainId1)
+	wrkchainList, _ := wrkchainOwner.WrkchainList(wrkchainId1)
 
-	for _, authAddr := range authAddresses {
-		t.Log("Registered Auth address", authAddr.Hex())
-	}
+	t.Log(wrkchainList)
 
 }
 
@@ -224,6 +222,116 @@ func TestWritingHashes(t *testing.T) {
 	contractBackend.Commit()
 
 	t.Log("RecordHeader Tx", tx)
+
+}
+
+func TestOnlyAuthCanWriteHashes(t *testing.T) {
+	genesisAlloc := map[common.Address]core.GenesisAccount{
+		deployerAddr: {
+			Balance: genesisBalance,
+		},
+		wrkchainOwnerAddr: {
+			Balance: genesisBalance,
+		},
+		accAddr2: {
+			Balance: genesisBalance,
+		},
+	}
+
+	contractBackend := backends.NewSimulatedBackend(genesisAlloc)
+
+	transactOptsDeployer := bind.NewKeyedTransactor(deployerKey)
+	transactOptsWrkchainOwner := bind.NewKeyedTransactor(wrkchainOwnerKey)
+	transactOptsAcc2 := bind.NewKeyedTransactor(accKey2)
+
+	wrkchainRootAddress, _, _  := DeployWrkchainRoot(transactOptsDeployer, contractBackend, depositAmt, minBlocks)
+
+	contractBackend.Commit()
+
+	// wrkchain owner registers a WRKChain
+	transactOptsWrkchainOwner.Value = depositAmt
+	wrkchainOwner, _ := NewWrkchainRoot(transactOptsWrkchainOwner, wrkchainRootAddress, contractBackend)
+
+	_, _ = wrkchainOwner.RegisterWrkChain(wrkchainId1, wrkchainAuthAddresses1, wrkchainGenesisHash1)
+
+	contractBackend.Commit()
+
+	acc2, _ := NewWrkchainRoot(transactOptsAcc2, wrkchainRootAddress, contractBackend)
+
+	_, err := acc2.RecordHeader(
+		wrkchainId1,
+		new(big.Int).SetUint64(1),
+		[32]byte{'a'},
+		[32]byte{'b'},
+		[32]byte{'c'},
+		[32]byte{'d'},
+		[32]byte{'e'},
+		wrkchainOwnerAddr,
+	)
+
+	if err == nil {
+		t.Fatalf("Should have failed...")
+	}
+}
+
+func TestNewAuthCanWrite(t *testing.T) {
+	genesisAlloc := map[common.Address]core.GenesisAccount{
+		deployerAddr: {
+			Balance: genesisBalance,
+		},
+		wrkchainOwnerAddr: {
+			Balance: genesisBalance,
+		},
+		accAddr2: {
+			Balance: genesisBalance,
+		},
+	}
+
+	contractBackend := backends.NewSimulatedBackend(genesisAlloc)
+
+	transactOptsDeployer := bind.NewKeyedTransactor(deployerKey)
+	transactOptsWrkchainOwner := bind.NewKeyedTransactor(wrkchainOwnerKey)
+	transactOptsAcc2 := bind.NewKeyedTransactor(accKey2)
+
+	wrkchainRootAddress, _, _  := DeployWrkchainRoot(transactOptsDeployer, contractBackend, depositAmt, minBlocks)
+
+	contractBackend.Commit()
+
+	// wrkchain owner registers a WRKChain
+	transactOptsWrkchainOwner.Value = depositAmt
+	wrkchainOwner, _ := NewWrkchainRoot(transactOptsWrkchainOwner, wrkchainRootAddress, contractBackend)
+
+	_, _ = wrkchainOwner.RegisterWrkChain(wrkchainId1, wrkchainAuthAddresses1, wrkchainGenesisHash1)
+
+	contractBackend.Commit()
+
+	//WRKChain owner adds new Auth
+	transactOptsWrkchainOwner.Value = new(big.Int).SetUint64(0)
+	wrkchainOwner, _ = NewWrkchainRoot(transactOptsWrkchainOwner, wrkchainRootAddress, contractBackend)
+	_, err := wrkchainOwner.AddAuthAddresses(wrkchainId1, []common.Address{accAddr2})
+
+	if err != nil {
+		t.Fatalf("Failed to authorise new address: %v", err)
+	}
+	contractBackend.Commit()
+
+	acc2, _ := NewWrkchainRoot(transactOptsAcc2, wrkchainRootAddress, contractBackend)
+
+	tx, err := acc2.RecordHeader(
+		wrkchainId1,
+		new(big.Int).SetUint64(1),
+		[32]byte{'a'},
+		[32]byte{'b'},
+		[32]byte{'c'},
+		[32]byte{'d'},
+		[32]byte{'e'},
+		wrkchainOwnerAddr,
+	)
+	if err != nil {
+		t.Fatalf("New authorised account failed to write hashes: %v", err)
+	}
+
+	t.Logf("Tx: %v", tx)
 
 }
 
