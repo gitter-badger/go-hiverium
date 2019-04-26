@@ -42,6 +42,29 @@ contract WRKChainRoot {
         uint256 _amount
     );
 
+    event AuthoriseNewAddress(
+        uint256 _chainId,
+        address _authorisedBy,
+        address _address
+    );
+
+    event RemoveAuthorisedAddress(
+        uint256 _chainId,
+        address _removedBy,
+        address _address
+    );
+
+    event WRKChainOwnerChanged(
+        address _old,
+        address _new
+    );
+
+    event WRKChainDepositPaid(
+        uint256 _chainId,
+        address _owner,
+        uint256 _amount
+    );
+
     /**
     * ----------
     * STRUCTURES
@@ -56,7 +79,6 @@ contract WRKChainRoot {
         bytes32 genesisHash; // Hashed genesis block
         bool isWrkchain; // used in require statements to check if WRKChain exists
         mapping(address => bool) authAddresses; // Current wallet addresses allowed to write hashes
-        address[] authAddressesIdx; // Same as above in array for querying
         address owner; // WRKChain owner address (the address that registered the WRKChain)
                        // This is the address that pays the deposit, and receives the refunded UND
         uint256 numBlocksSubmitted; // Counter for number of blocks submitted
@@ -93,7 +115,7 @@ contract WRKChainRoot {
     /*
     * Mapping of ChainID -> Wrkchain Struct
     */
-    mapping(uint256 => Wrkchain) wrkchainList;
+    mapping(uint256 => Wrkchain) public wrkchainList;
 
     /**
     * ---------
@@ -108,6 +130,16 @@ contract WRKChainRoot {
     modifier onlyAuth(uint256 _chainId) {
         require(wrkchainList[_chainId].isWrkchain, "ChainID does not exist");
         require(wrkchainList[_chainId].authAddresses[msg.sender] == true || msg.sender == wrkchainList[_chainId].owner);
+        _;
+    }
+
+    /*
+    * @dev Modifier to ensure only the WRKChain owner can execute a function
+    * @param _chainId the WRKChain network ID
+    */
+    modifier onlyWrkchainOwner(uint256 _chainId) {
+        require(wrkchainList[_chainId].isWrkchain, "ChainID does not exist");
+        require(msg.sender == wrkchainList[_chainId].owner, "You are not the owner");
         _;
     }
 
@@ -165,22 +197,24 @@ contract WRKChainRoot {
             lastBlock: 0,
             genesisHash: _genesisHash,
             isWrkchain: true,
-            authAddressesIdx: _authAddresses,
             owner: msg.sender,
             numBlocksSubmitted: 0
         });
 
+        emit RegisterWrkChain(_chainId, _genesisHash);
+
         for (uint i=0; i< _authAddresses.length; i++) {
             wrkchainList[_chainId].authAddresses[_authAddresses[i]] = true;
+            emit AuthoriseNewAddress(_chainId, msg.sender, _authAddresses[i]);
         }
 
         wrkchainList[_chainId].authAddresses[msg.sender] = true;
-        wrkchainList[_chainId].authAddressesIdx.push(msg.sender);
+        emit AuthoriseNewAddress(_chainId, msg.sender, msg.sender);
 
         totalDeposits = totalDeposits.add(msg.value);
         ownerDepositMapping[msg.sender][_chainId] = msg.value;
 
-        emit RegisterWrkChain(_chainId, _genesisHash);
+        emit WRKChainDepositPaid(_chainId, msg.sender, msg.value);
 
     }
 
@@ -241,28 +275,86 @@ contract WRKChainRoot {
         );
     }
 
-    //Set the new EVs
-    function setAuthAddresses(uint256 _chainId, address[] memory _newAuthAddresses) public onlyAuth(_chainId) {
+    /**
+    * ---------------
+    * ADMIN FUNCTIONS
+    * ---------------
+    */
+
+    /*
+    * @dev Authorise a new wallet to write hashes for the WRKChain.
+    *      Only WRKChain owner can all this
+    * @param _chainID - WRKChain network ID
+    * @param _newAuthAddresses - array of one or more new addresses that can write hashes
+    */
+    function addAuthAddresses(
+        uint256 _chainId,
+        address[] memory _newAuthAddresses
+    ) public onlyWrkchainOwner(_chainId) {
         require(_chainId > 0, "Chain ID required");
         require(_newAuthAddresses.length > 0, "Auth addresses required");
-        require(_newAuthAddresses.length <= 0, "Max submission 10 addresses allowed");
+        require(_newAuthAddresses.length <= 10, "Max submission 10 addresses allowed");
+        require(wrkchainList[_chainId].isWrkchain, "Chain ID does not exist");
+
+        for (uint j=0; j< _newAuthAddresses.length; j++) {
+            require(_newAuthAddresses[j] != address(0), "cannot authorise zero address");
+            wrkchainList[_chainId].authAddresses[_newAuthAddresses[j]] = true;
+            emit AuthoriseNewAddress(_chainId, msg.sender, _newAuthAddresses[j]);
+        }
+    }
+
+    /*
+    * @dev Remove a wallet from the list of authorised addresses that can write hashes for the WRKChain.
+    *      Only WRKChain owner can all this
+    * @param _chainID - WRKChain network ID
+    * @param _addressesToRemove - array of one or more new addresses to remove
+    */
+    function removeAuthAddresses(
+        uint256 _chainId,
+        address[] memory _addressesToRemove
+    ) public onlyWrkchainOwner(_chainId) {
+        require(_chainId > 0, "Chain ID required");
+        require(_addressesToRemove.length > 0, "Auth addresses required");
+        require(_addressesToRemove.length <= 10, "Max submission 10 addresses allowed");
+        require(wrkchainList[_chainId].isWrkchain, "Chain ID does not exist");
+
+        for (uint j=0; j< _addressesToRemove.length; j++) {
+            require(_addressesToRemove[j] != address(0), "cannot authorise zero address");
+            delete wrkchainList[_chainId].authAddresses[_addressesToRemove[j]];
+            emit RemoveAuthorisedAddress(_chainId, msg.sender, _addressesToRemove[j]);
+        }
+    }
+
+    /*
+    * @dev Change WRKChain ownership to a new wallet address.
+    *      NOTE: This can only be called after the original owner has received their deposit
+    *      Only WRKChain owner can all this
+    * @param _chainID - WRKChain network ID
+    * @param _newOwner - wallet address of new owner
+    */
+    function changeWrkchainOwner(
+        uint256 _chainId,
+        address _newOwner
+    ) public onlyWrkchainOwner(_chainId) {
+        require(_chainId > 0, "Chain ID required");
+        require(_newOwner != address(0), "New owner required, and should be non-zero address");
         require(wrkchainList[_chainId].isWrkchain, "Chain ID does not exist");
 
         Wrkchain storage my_wrkchain = wrkchainList[_chainId];
 
-        for(uint i =0; i < my_wrkchain.authAddressesIdx.length; i++) {
-            wrkchainList[_chainId].authAddresses[my_wrkchain.authAddressesIdx[i]] = false;
-        }
+        require(wrkchainList[_chainId].numBlocksSubmitted > MIN_BLOCKS_FOR_DEPOSIT_RETURN, "Owner cannot be changed before deposit has been returned");
 
-        for (uint j=0; j< _newAuthAddresses.length; j++) {
-            wrkchainList[_chainId].authAddresses[_newAuthAddresses[j]] = true;
-        }
+        wrkchainList[_chainId].owner = _newOwner;
+        wrkchainList[_chainId].authAddresses[_newOwner] = true;
 
-        wrkchainList[_chainId].authAddressesIdx = _newAuthAddresses;
-        wrkchainList[_chainId].authAddresses[my_wrkchain.owner] = true;
-        wrkchainList[_chainId].authAddressesIdx.push(my_wrkchain.owner);
-
+        emit WRKChainOwnerChanged(msg.sender, _newOwner);
     }
+
+    /**
+    * -------
+    * GETTERS
+    * -------
+    */
 
     //get the Genesis hash for a WRKChain
     function getGenesis(uint256 _chainId) public view returns (bytes32 genesisHash_) {
@@ -270,15 +362,6 @@ contract WRKChainRoot {
         require(wrkchainList[_chainId].isWrkchain, "Chain ID does not exist");
 
         genesisHash_ = wrkchainList[_chainId].genesisHash;
-    }
-
-
-    //return list of current Authorised addresses for WRKChain
-    function getAuthAddresses(uint256 _chainId) public view returns (address[] memory authAddressesIdx_) {
-        require(_chainId > 0, "Chain ID required");
-        require(wrkchainList[_chainId].isWrkchain, "Chain ID does not exist");
-
-        authAddressesIdx_ = wrkchainList[_chainId].authAddressesIdx;
     }
 
     // get last block number recorded for a WRKChain
@@ -289,11 +372,25 @@ contract WRKChainRoot {
         lastBlock_ = wrkchainList[_chainId].lastBlock;
     }
 
+    //get number of blocks submitted
     function getNumBlocksSubmitted(uint256 _chainId) public view returns (uint256 numBlocksSubmitted_) {
         require(_chainId > 0, "Chain ID required");
         require(wrkchainList[_chainId].isWrkchain, "Chain ID does not exist");
 
         numBlocksSubmitted_ = wrkchainList[_chainId].numBlocksSubmitted;
+    }
+
+    /**
+    * --------------
+    * HELPER QUERIES
+    * --------------
+    */
+
+    function isAuthorisedAddress(uint256 _chainId, address _address) public view returns (bool _isAuthorised) {
+        require(_chainId > 0, "Chain ID required");
+        require(wrkchainList[_chainId].isWrkchain, "Chain ID does not exist");
+
+        _isAuthorised = wrkchainList[_chainId].authAddresses[_address];
     }
 
 }
