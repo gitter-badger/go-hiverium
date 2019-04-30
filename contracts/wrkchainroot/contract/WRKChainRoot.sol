@@ -185,13 +185,13 @@ contract WRKChainRoot {
         address[] _authAddresses,
         bytes32 _genesisHash) payable external {
 
+        require(!wrkchainList[_chainId].isWrkchain, "Chain ID already exists");
         require(msg.value == WRKCHAIN_REG_DEPOSIT && msg.value > 0, "Deposit required");
         require(_chainId > 0, "Chain ID required");
         require(_genesisHash.length > 0, "Genesis hash required");
         require(_authAddresses.length > 0, "Initial Authorised addresses required");
         require(_authAddresses.length <= 10, "Maximum 10 Initial Authorised addresses allowed");
 
-        require(!wrkchainList[_chainId].isWrkchain, "Chain ID already exists");
 
         wrkchainList[_chainId] = Wrkchain({
             lastBlock: 0,
