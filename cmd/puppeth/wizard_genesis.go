@@ -330,7 +330,7 @@ func (w *wizard) makeGenesis() {
 
 		fmt.Println()
 		fmt.Println("How many block hashes does a WRKChain need to submit to get deposit refunded? (default 1000)")
-		minBlocks := big.NewInt(int64(w.readDefaultInt(1000)))
+		minBlocks := new(big.Int).SetUint64(uint64(w.readDefaultInt(1000)))
 
 		wrkchainRootAddress, _, err := wrkchainRootContract.DeployWrkchainRoot(transactOpts, contractBackend, depositAmount, minBlocks)
 		if err != nil {
