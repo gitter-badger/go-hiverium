@@ -16,9 +16,9 @@ contract WRKChainRoot {
     // RecordHeader - called when block hashes are recorded. Allows querying the chain for hashes
     // without requiring to store that actual data.
     event RecordHeader(
-        uint256 _chainId,
-        uint256 _height,
-        bytes32 _hash,
+        uint256  indexed _chainId,
+        uint256  indexed _height,
+        bytes32  indexed _hash,
         bytes32 _parentHash,
         bytes32 _receiptRoot,
         bytes32 _txRoot,
@@ -27,41 +27,42 @@ contract WRKChainRoot {
     );
 
     event RegisterWrkChain(
-        uint256 _chainId,
-        bytes32 _genesisHash
+        uint256  indexed _chainId,
+        bytes32  _genesisHash
     );
 
     event LogFallbackFunctionCalled(
-        address _from,
+        address indexed _from,
         uint256 _amount
     );
 
     event WRKChainDepositRefund(
-        uint256 _chainId,
-        address _owner,
+        uint256  indexed _chainId,
+        address  indexed _owner,
         uint256 _amount
     );
 
     event AuthoriseNewAddress(
-        uint256 _chainId,
-        address _authorisedBy,
+        uint256  indexed _chainId,
+        address  indexed _authorisedBy,
         address _address
     );
 
     event RemoveAuthorisedAddress(
-        uint256 _chainId,
-        address _removedBy,
+        uint256  indexed _chainId,
+        address  indexed _removedBy,
         address _address
     );
 
     event WRKChainOwnerChanged(
+        uint256  indexed _chainId,
         address _old,
         address _new
     );
 
     event WRKChainDepositPaid(
-        uint256 _chainId,
-        address _owner,
+        uint256 indexed _chainId,
+        address indexed _owner,
         uint256 _amount
     );
 
@@ -347,7 +348,7 @@ contract WRKChainRoot {
         wrkchainList[_chainId].owner = _newOwner;
         wrkchainList[_chainId].authAddresses[_newOwner] = true;
 
-        emit WRKChainOwnerChanged(msg.sender, _newOwner);
+        emit WRKChainOwnerChanged(_chainId, msg.sender, _newOwner);
     }
 
     /**
