@@ -496,9 +496,9 @@ func (c *Posv) YourTurn(chain consensus.ChainReader, parent *types.Header, signe
 	if common.IsTestnet {
 		// Only three mns hard code for und testnet.
 		masternodes = []common.Address{
-			common.HexToAddress("0xfFC679Dcdf444D2eEb0491A998E7902B411CcF20"),
-			common.HexToAddress("0xd76fd76F7101811726DCE9E43C2617706a4c45c8"),
-			common.HexToAddress("0x8A97753311aeAFACfd76a68Cf2e2a9808d3e65E8"),
+			common.HexToAddress("0x627306090abab3a6e1400e9345bc60c78a8bef57"),
+			common.HexToAddress("0xf17f52151ebef6c7334fad080c5704d77216b732"),
+			common.HexToAddress("0xc5fdf4076b8f3a5357c5e395ab970b5b54098fef"),
 		}
 	}
 
