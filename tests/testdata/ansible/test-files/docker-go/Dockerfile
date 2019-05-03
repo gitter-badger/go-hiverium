@@ -31,7 +31,7 @@ RUN git checkout v1
 RUN go install -v
 
 # this is a workaround, to make sure that docker's cache is invalidated whenever the git repo changes
-ADD https://api.github.com/repos/ethereum/go-ethereum/git/refs/heads/develop unused.txt 
+ADD https://api.github.com/repos/unification-com/mainchain/git/refs/heads/develop unused.txt
 
 ## Fetch and install go-ethereum
 RUN go get -u -v -d github.com/unification-com/mainchain/...

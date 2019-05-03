@@ -38,6 +38,7 @@ import (
 	multiSignWalletContract "github.com/unification-com/mainchain/contracts/multisigwallet"
 	randomizeContract "github.com/unification-com/mainchain/contracts/randomize"
 	validatorContract "github.com/unification-com/mainchain/contracts/validator"
+	wrkchainRootContract "github.com/unification-com/mainchain/contracts/wrkchainroot"
 	"github.com/unification-com/mainchain/crypto"
 	"github.com/unification-com/mainchain/rlp"
 )
@@ -319,6 +320,43 @@ func (w *wizard) makeGenesis() {
 		baseBalance.Mul(baseBalance, big.NewInt(1000000000000000000))
 		genesis.Alloc[swapAddr] = core.GenesisAccount{
 			Balance: baseBalance,
+		}
+
+		// WRKChainRoot
+		fmt.Println()
+		fmt.Println("What is the required deposit amount for registering a WRKChain? (default 10 UND)")
+		depositAmount := big.NewInt(int64(w.readDefaultInt(10)))
+		depositAmount.Mul(depositAmount, big.NewInt(1000000000000000000))
+
+		fmt.Println()
+		fmt.Println("How many block hashes does a WRKChain need to submit to get deposit refunded? (default 1000)")
+		minBlocks := new(big.Int).SetUint64(uint64(w.readDefaultInt(1000)))
+
+		wrkchainRootAddress, _, err := wrkchainRootContract.DeployWrkchainRoot(transactOpts, contractBackend, depositAmount, minBlocks)
+		if err != nil {
+			fmt.Println("Can't deploy root registry")
+		}
+		contractBackend.Commit()
+
+		wrkd := time.Now().Add(1000 * time.Millisecond)
+		wrkctx, wrkcancel := context.WithDeadline(context.Background(), wrkd)
+		defer wrkcancel()
+		wrkcode, _ := contractBackend.CodeAt(wrkctx, wrkchainRootAddress, nil)
+		wrkstorage := make(map[common.Hash]common.Hash)
+		wrkf := func(key, val common.Hash) bool {
+			decode := []byte{}
+			trim := bytes.TrimLeft(val.Bytes(), "\x00")
+			rlp.DecodeBytes(trim, &decode)
+			wrkstorage[key] = common.BytesToHash(decode)
+			log.Info("DecodeBytes", "value", val.String(), "decode", storage[key].String())
+			return true
+		}
+		contractBackend.ForEachStorageAt(wrkctx, wrkchainRootAddress, nil, wrkf)
+
+		genesis.Alloc[common.HexToAddress(common.WRKChainRoot)] = core.GenesisAccount{
+			Code:    wrkcode,
+			Storage: wrkstorage,
+			Balance: big.NewInt(0),
 		}
 
 	default:
